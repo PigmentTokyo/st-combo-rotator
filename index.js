@@ -162,24 +162,27 @@ function buildLauncher() {
     document.body.appendChild($launcher);
 }
 
-function optionList(values, selected, placeholder) {
+function optionList(values, selected, placeholder, allowNone) {
     const set = Array.isArray(values) ? values.slice() : [];
     // 让已保存但当前列表里没有的名字也能显示出来，避免选项丢失
     if (selected && !set.includes(selected)) set.unshift(selected);
-    const ph = `<option value="" ${selected ? '' : 'selected'} disabled hidden>${placeholder}</option>`;
+    // allowNone=true 时，空选项可被选中（表示「不切换」）；否则作为禁用占位符
+    const none = allowNone
+        ? `<option value="" ${selected ? '' : 'selected'}>${placeholder}</option>`
+        : `<option value="" ${selected ? '' : 'selected'} disabled hidden>${placeholder}</option>`;
     const opts = set.map(v =>
         `<option value="${escapeAttr(v)}" ${v === selected ? 'selected' : ''}>${escapeAttr(v)}</option>`
     ).join('');
     const manual = `<option value="__manual__">✎ 手动输入…</option>`;
-    return ph + opts + manual;
+    return none + opts + manual;
 }
 
 function comboRowHtml(combo, i) {
     return `
     <div class="cr-combo-row" data-i="${i}">
         <input class="cr-cname text_pole" placeholder="组合名(如 AB)" value="${escapeAttr(combo.name)}" />
-        <select class="cr-cpreset text_pole" title="预设">${optionList(getPresetNames(), combo.preset, '选预设…')}</select>
-        <select class="cr-cprofile text_pole" title="连接配置">${optionList(getProfileNames(), combo.profile, '选连接…')}</select>
+        <select class="cr-cpreset text_pole" title="预设（可留空，跟随连接配置）">${optionList(getPresetNames(), combo.preset, '不切换预设 · 跟随连接配置', true)}</select>
+        <select class="cr-cprofile text_pole" title="连接配置（含模型）">${optionList(getProfileNames(), combo.profile, '选连接配置…', false)}</select>
         <button class="cr-apply menu_button" title="立即应用此组合">▶</button>
         <button class="cr-del menu_button" title="删除">✕</button>
     </div>`;
