@@ -20,6 +20,7 @@ const DEFAULTS = {
     enabled: false,        // 总开关；关闭 = 永不切换
     mode: 'sequential',    // 'sequential' 顺序 | 'random' 随机
     frequency: 1,          // 每 N 轮对话切换一次（>=1）
+    suppressRegexToast: true, // 吞掉「预设包含正则，需重载聊天」的提示
     combos: [],            // [{ name, preset, profile }]
     currentIndex: 0,       // 当前组合下标
     roundCounter: 0,       // 自上次切换以来累计的轮数
@@ -235,6 +236,11 @@ function buildPanel() {
                 <span>轮对话切换一次</span>
             </div>
 
+            <label class="cr-line">
+                <input type="checkbox" id="cr-suppress-toast" ${S.suppressRegexToast ? 'checked' : ''}/>
+                <span>隐藏切换时的「正则需重载」提示</span>
+            </label>
+
             <div class="cr-line cr-combos-head">
                 <b>组合列表</b>
                 <span class="cr-hint">每组 = 1预设 + 1连接</span>
@@ -296,6 +302,7 @@ function wirePanel() {
         S.enabled = e.target.checked; S.roundCounter = 0; save(); updateStatus();
     });
     $panel.querySelector('#cr-mode').addEventListener('change', e => { S.mode = e.target.value; save(); });
+    $panel.querySelector('#cr-suppress-toast').addEventListener('change', e => { S.suppressRegexToast = e.target.checked; save(); });
     $panel.querySelector('#cr-freq').addEventListener('input', e => {
         S.frequency = Math.max(1, parseInt(e.target.value) || 1); save(); updateStatus();
     });
@@ -353,12 +360,44 @@ function makeDraggable(panel, handle) {
     });
 }
 
+/* ---------------- 吞掉「预设含正则，需重载聊天」的提示 ---------------- */
+
+// 这些提示只是用来把正则追溯应用到旧消息；新生成的消息正则照常生效。
+const REGEX_TOAST_MARKERS = [
+    '包含被启用的正则', '使正则生效', '重新加载聊天', '重新加载当前聊天',
+    'enabled regex', 'Reload the chat', 'reload the current chat',
+];
+
+function installToastFilter() {
+    try {
+        const t = window.toastr;
+        if (!t || t.__crWrapped) return;
+        const wrap = (fn) => function (msg, title) {
+            try {
+                if (S && S.suppressRegexToast) {
+                    const hay = `${msg ?? ''} ${title ?? ''}`;
+                    if (REGEX_TOAST_MARKERS.some(m => hay.includes(m))) return; // 吞掉，不显示
+                }
+            } catch (e) { /* ignore */ }
+            return fn.apply(this, arguments);
+        };
+        if (typeof t.info === 'function') t.info = wrap(t.info);
+        if (typeof t.warning === 'function') t.warning = wrap(t.warning);
+        if (typeof t.success === 'function') t.success = wrap(t.success);
+        t.__crWrapped = true;
+        console.log('[Combo Rotator] toast 过滤已安装');
+    } catch (e) {
+        console.warn('[Combo Rotator] toast 过滤安装失败', e);
+    }
+}
+
 /* ---------------- 初始化 ---------------- */
 
 function init() {
     const c = ctx();
     if (!c) { setTimeout(init, 500); return; }
     loadSettings();
+    installToastFilter();
     buildPanel();
     buildLauncher();
 
