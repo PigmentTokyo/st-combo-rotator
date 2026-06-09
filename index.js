@@ -84,12 +84,9 @@ async function applyCombo(idx, { announce = true } = {}) {
     const combo = S.combos[idx];
     if (!combo) return;
     const cmds = [];
-    // 先切连接配置文件，再切预设，保证预设不被 profile 自带的预设覆盖
+    // 切换连接配置文件（其中已含预设+模型）
     if (combo.profile && combo.profile.trim()) {
         cmds.push(`/profile ${combo.profile.trim()}`);
-    }
-    if (combo.preset && combo.preset.trim()) {
-        cmds.push(`/preset ${combo.preset.trim()}`);
     }
     try {
         for (const cmd of cmds) {
@@ -181,9 +178,8 @@ function optionList(values, selected, placeholder, allowNone) {
 function comboRowHtml(combo, i) {
     return `
     <div class="cr-combo-row" data-i="${i}">
-        <input class="cr-cname text_pole" placeholder="组合名(如 AB)" value="${escapeAttr(combo.name)}" />
-        <select class="cr-cpreset text_pole" title="预设（可留空，跟随连接配置）">${optionList(getPresetNames(), combo.preset, '不切换预设 · 跟随连接配置', true)}</select>
-        <select class="cr-cprofile text_pole" title="连接配置（含模型）">${optionList(getProfileNames(), combo.profile, '选连接配置…', false)}</select>
+        <input class="cr-cname text_pole" placeholder="组合名(如 A版/B版)" value="${escapeAttr(combo.name)}" />
+        <select class="cr-cprofile text_pole" title="连接配置（含预设+模型）">${optionList(getProfileNames(), combo.profile, '选连接配置…', false)}</select>
         <button class="cr-apply menu_button" title="立即应用此组合">▶</button>
         <button class="cr-del menu_button" title="删除">✕</button>
     </div>`;
@@ -243,7 +239,7 @@ function buildPanel() {
 
             <div class="cr-line cr-combos-head">
                 <b>组合列表</b>
-                <span class="cr-hint">每组 = 1预设 + 1连接</span>
+                <span class="cr-hint">每组 = 1 连接配置（含预设+模型）</span>
             </div>
             <div id="cr-combos"></div>
             <button id="cr-add" class="menu_button">+ 添加组合</button>
@@ -278,7 +274,6 @@ function renderCombos() {
     box.querySelectorAll('.cr-combo-row').forEach(row => {
         const i = parseInt(row.dataset.i);
         row.querySelector('.cr-cname').addEventListener('input', e => { S.combos[i].name = e.target.value; save(); updateStatus(); });
-        row.querySelector('.cr-cpreset').addEventListener('change', e => handleComboSelect(e.target, i, 'preset'));
         row.querySelector('.cr-cprofile').addEventListener('change', e => handleComboSelect(e.target, i, 'profile'));
         row.querySelector('.cr-apply').addEventListener('click', () => { S.currentIndex = i; S.roundCounter = 0; save(); applyCombo(i); });
         row.querySelector('.cr-del').addEventListener('click', () => {
