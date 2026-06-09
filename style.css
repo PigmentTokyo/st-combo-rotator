@@ -1,83 +1,68 @@
-#cr-launcher {
-    position: fixed;
-    right: 14px;
-    bottom: 90px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--SmartThemeBlurTintColor, #2b2b3a);
-    color: var(--SmartThemeBodyColor, #e6e6e6);
-    border: 1px solid var(--SmartThemeBorderColor, #555);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 9998;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .4);
-    user-select: none;
-}
-#cr-launcher:hover { filter: brightness(1.2); }
+/* Combo Rotator —— 嵌入「扩展」设置面板的样式 */
 
-#cr-panel {
-    position: fixed;
-    right: 14px;
-    bottom: 140px;
-    width: 320px;
-    max-height: 70vh;
-    flex-direction: column;
-    background: var(--SmartThemeBlurTintColor, #23232e);
-    color: var(--SmartThemeBodyColor, #e6e6e6);
-    border: 1px solid var(--SmartThemeBorderColor, #555);
-    border-radius: 10px;
-    z-index: 9999;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
-    overflow: hidden;
+#combo_rotator_settings .inline-drawer-content {
     font-size: 13px;
 }
 
-#cr-header {
+#combo_rotator_settings .cr-line {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    cursor: move;
-    background: rgba(255, 255, 255, .06);
-    font-weight: bold;
-    user-select: none;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 7px 0;
 }
-#cr-close { cursor: pointer; padding: 0 6px; opacity: .8; }
-#cr-close:hover { opacity: 1; }
 
-#cr-body {
-    padding: 10px 12px;
-    overflow-y: auto;
+#combo_rotator_settings .cr-hint {
+    opacity: .6;
+    font-size: 11px;
+}
+
+#combo_rotator_settings .cr-combos-head {
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+#combo_rotator_settings #cr-combos {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
-.cr-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.cr-hint { opacity: .6; font-size: 11px; }
-.cr-combos-head { justify-content: space-between; margin-top: 4px; }
-
-#cr-combos { display: flex; flex-direction: column; gap: 6px; }
-
-.cr-combo-row {
+#combo_rotator_settings .cr-combo-row {
     display: grid;
-    grid-template-columns: 1fr 1.4fr auto auto;
+    grid-template-columns: 1fr 1.3fr auto auto;
     gap: 4px;
     align-items: center;
 }
-.cr-combo-row input,
-.cr-combo-row select { min-width: 0; padding: 3px 5px; font-size: 12px; }
-.cr-combo-row .menu_button { padding: 2px 6px; min-width: auto; height: auto; line-height: 1.4; }
 
-.cr-actions { gap: 6px; margin-top: 4px; }
-.cr-actions .menu_button { padding: 3px 8px; font-size: 12px; }
+#combo_rotator_settings .cr-combo-row input,
+#combo_rotator_settings .cr-combo-row select {
+    min-width: 0;
+    width: 100%;
+    padding: 3px 5px;
+    font-size: 12px;
+}
 
-.cr-status {
+#combo_rotator_settings .cr-combo-row .menu_button {
+    padding: 2px 6px;
+    min-width: auto;
+    height: auto;
+    line-height: 1.4;
+}
+
+#combo_rotator_settings .cr-actions {
+    gap: 6px;
     margin-top: 6px;
+}
+
+#combo_rotator_settings .cr-actions .menu_button {
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+#combo_rotator_settings .cr-status {
+    margin-top: 8px;
     padding-top: 6px;
     border-top: 1px solid var(--SmartThemeBorderColor, #444);
     font-size: 12px;
