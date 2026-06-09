@@ -1,0 +1,12 @@
+{
+    "display_name": "Combo Rotator 预设+连接轮换",
+    "loading_order": 100,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Cowork",
+    "version": "1.0.0",
+    "homePage": "",
+    "auto_update": false
+}

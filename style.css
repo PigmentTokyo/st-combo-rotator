@@ -1,0 +1,84 @@
+#cr-launcher {
+    position: fixed;
+    right: 14px;
+    bottom: 90px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--SmartThemeBlurTintColor, #2b2b3a);
+    color: var(--SmartThemeBodyColor, #e6e6e6);
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 9998;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .4);
+    user-select: none;
+}
+#cr-launcher:hover { filter: brightness(1.2); }
+
+#cr-panel {
+    position: fixed;
+    right: 14px;
+    bottom: 140px;
+    width: 320px;
+    max-height: 70vh;
+    flex-direction: column;
+    background: var(--SmartThemeBlurTintColor, #23232e);
+    color: var(--SmartThemeBodyColor, #e6e6e6);
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    border-radius: 10px;
+    z-index: 9999;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
+    overflow: hidden;
+    font-size: 13px;
+}
+
+#cr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: move;
+    background: rgba(255, 255, 255, .06);
+    font-weight: bold;
+    user-select: none;
+}
+#cr-close { cursor: pointer; padding: 0 6px; opacity: .8; }
+#cr-close:hover { opacity: 1; }
+
+#cr-body {
+    padding: 10px 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cr-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cr-hint { opacity: .6; font-size: 11px; }
+.cr-combos-head { justify-content: space-between; margin-top: 4px; }
+
+#cr-combos { display: flex; flex-direction: column; gap: 6px; }
+
+.cr-combo-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto auto;
+    gap: 4px;
+    align-items: center;
+}
+.cr-combo-row input { min-width: 0; padding: 3px 5px; font-size: 12px; }
+.cr-combo-row .menu_button { padding: 2px 6px; min-width: auto; height: auto; line-height: 1.4; }
+
+.cr-actions { gap: 6px; margin-top: 4px; }
+.cr-actions .menu_button { padding: 3px 8px; font-size: 12px; }
+
+.cr-status {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--SmartThemeBorderColor, #444);
+    font-size: 12px;
+    opacity: .95;
+}
