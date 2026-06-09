@@ -50,8 +50,11 @@ function save() {
 function getProfileNames() {
     try {
         const c = ctx();
-        const cm = c.extensionSettings?.connectionManager;
-        return (cm?.profiles || []).map(p => p.name).filter(Boolean);
+        const cm = c?.extensionSettings?.connectionManager
+            || (typeof extension_settings !== 'undefined' ? extension_settings.connectionManager : null);
+        const profiles = cm?.profiles;
+        if (!Array.isArray(profiles)) return [];
+        return profiles.map(p => (typeof p === 'string' ? p : p?.name)).filter(Boolean);
     } catch (e) { return []; }
 }
 
@@ -159,15 +162,42 @@ function buildLauncher() {
     document.body.appendChild($launcher);
 }
 
+function optionList(values, selected, placeholder) {
+    const set = Array.isArray(values) ? values.slice() : [];
+    // 让已保存但当前列表里没有的名字也能显示出来，避免选项丢失
+    if (selected && !set.includes(selected)) set.unshift(selected);
+    const ph = `<option value="" ${selected ? '' : 'selected'} disabled hidden>${placeholder}</option>`;
+    const opts = set.map(v =>
+        `<option value="${escapeAttr(v)}" ${v === selected ? 'selected' : ''}>${escapeAttr(v)}</option>`
+    ).join('');
+    const manual = `<option value="__manual__">✎ 手动输入…</option>`;
+    return ph + opts + manual;
+}
+
 function comboRowHtml(combo, i) {
     return `
     <div class="cr-combo-row" data-i="${i}">
         <input class="cr-cname text_pole" placeholder="组合名(如 AB)" value="${escapeAttr(combo.name)}" />
-        <input class="cr-cpreset text_pole" list="cr-presets" placeholder="预设名" value="${escapeAttr(combo.preset)}" />
-        <input class="cr-cprofile text_pole" list="cr-profiles" placeholder="连接配置名" value="${escapeAttr(combo.profile)}" />
+        <select class="cr-cpreset text_pole" title="预设">${optionList(getPresetNames(), combo.preset, '选预设…')}</select>
+        <select class="cr-cprofile text_pole" title="连接配置">${optionList(getProfileNames(), combo.profile, '选连接…')}</select>
         <button class="cr-apply menu_button" title="立即应用此组合">▶</button>
         <button class="cr-del menu_button" title="删除">✕</button>
     </div>`;
+}
+
+function handleComboSelect(sel, i, key) {
+    if (sel.value === '__manual__') {
+        const cur = S.combos[i][key] || '';
+        const label = key === 'preset' ? '输入预设名：' : '输入连接配置名：';
+        const name = window.prompt(label, cur);
+        if (name && name.trim()) S.combos[i][key] = name.trim();
+        save();
+        renderCombos(); // 重新渲染让手填的名字成为选中项
+        return;
+    }
+    S.combos[i][key] = sel.value;
+    save();
+    if (key === 'name') updateStatus();
 }
 
 function escapeAttr(s) {
@@ -217,8 +247,6 @@ function buildPanel() {
 
             <div id="cr-status" class="cr-status"></div>
         </div>
-        <datalist id="cr-presets"></datalist>
-        <datalist id="cr-profiles"></datalist>
     </div>`);
     document.body.appendChild($panel);
 
@@ -231,7 +259,6 @@ function buildPanel() {
 
     wirePanel();
     renderCombos();
-    refreshDatalists();
     updateStatus();
     makeDraggable($panel, $panel.querySelector('#cr-header'));
 }
@@ -242,8 +269,8 @@ function renderCombos() {
     box.querySelectorAll('.cr-combo-row').forEach(row => {
         const i = parseInt(row.dataset.i);
         row.querySelector('.cr-cname').addEventListener('input', e => { S.combos[i].name = e.target.value; save(); updateStatus(); });
-        row.querySelector('.cr-cpreset').addEventListener('input', e => { S.combos[i].preset = e.target.value; save(); });
-        row.querySelector('.cr-cprofile').addEventListener('input', e => { S.combos[i].profile = e.target.value; save(); });
+        row.querySelector('.cr-cpreset').addEventListener('change', e => handleComboSelect(e.target, i, 'preset'));
+        row.querySelector('.cr-cprofile').addEventListener('change', e => handleComboSelect(e.target, i, 'profile'));
         row.querySelector('.cr-apply').addEventListener('click', () => { S.currentIndex = i; S.roundCounter = 0; save(); applyCombo(i); });
         row.querySelector('.cr-del').addEventListener('click', () => {
             S.combos.splice(i, 1);
@@ -253,13 +280,9 @@ function renderCombos() {
     });
 }
 
-function refreshDatalists() {
-    const presets = getPresetNames();
-    const profiles = getProfileNames();
-    const pl = $panel.querySelector('#cr-presets');
-    const fl = $panel.querySelector('#cr-profiles');
-    pl.innerHTML = presets.map(n => `<option value="${escapeAttr(n)}"></option>`).join('');
-    fl.innerHTML = profiles.map(n => `<option value="${escapeAttr(n)}"></option>`).join('');
+function refreshOptions() {
+    // 重新渲染组合行，重新从实时列表拉取预设/连接配置下拉项
+    if ($panel) renderCombos();
 }
 
 function wirePanel() {
@@ -279,7 +302,7 @@ function wirePanel() {
     });
     $panel.querySelector('#cr-applycur').addEventListener('click', () => applyCombo(S.currentIndex));
     $panel.querySelector('#cr-resetcnt').addEventListener('click', () => { S.roundCounter = 0; save(); updateStatus(); });
-    $panel.querySelector('#cr-refresh').addEventListener('click', () => { refreshDatalists(); });
+    $panel.querySelector('#cr-refresh').addEventListener('click', () => { refreshOptions(); });
 }
 
 function updateStatus() {

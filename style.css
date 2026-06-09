@@ -69,7 +69,8 @@
     gap: 4px;
     align-items: center;
 }
-.cr-combo-row input { min-width: 0; padding: 3px 5px; font-size: 12px; }
+.cr-combo-row input,
+.cr-combo-row select { min-width: 0; padding: 3px 5px; font-size: 12px; }
 .cr-combo-row .menu_button { padding: 2px 6px; min-width: auto; height: auto; line-height: 1.4; }
 
 .cr-actions { gap: 6px; margin-top: 4px; }
